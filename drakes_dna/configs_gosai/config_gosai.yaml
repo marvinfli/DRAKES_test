@@ -90,7 +90,7 @@ wandb:
 
 hydra:
   run:
-    dir: /data/scratch/wangchy/seqft/mdlm/outputs_gosai/${now:%Y.%m.%d}/${now:%H%M%S}
+    dir: /n/holylabs/LABS/sitanc_lab/Users/mfli/DRAKES_test/data_and_model/mdlm/outputs_gosai/${now:%Y.%m.%d}/${now:%H%M%S}
   job:
     chdir: true
 
