@@ -371,10 +371,10 @@ class ModelEvaluator:
             
             # Calculate correlations
             correlations = motifs_summary.corr(method='spearman')
-            
             self.results['motif_analysis'] = {
                 'motif_counts': {name: counts.to_dict() for name, counts in motif_summaries.items()},
                 'correlations': correlations.to_dict(),
+                'top_correlations': correlations.loc['top_data'].to_dict(),
                 'n_motifs_detected': int(len(motifs_summary))
             }
             
@@ -382,7 +382,7 @@ class ModelEvaluator:
             motifs_summary.to_csv(self.output_dir / 'motif_summary.csv')
             correlations.to_csv(self.output_dir / 'motif_correlations.csv')
             
-            self.logger.info(f"Motif analysis completed. Detected {len(motifs_summary)} motifs.")
+            self.logger.info(f"Motif analysis completed.")
             
         except Exception as e:
             self.logger.error(f"Motif analysis failed: {e}")
@@ -442,6 +442,27 @@ class ModelEvaluator:
         with open(pickle_file, 'wb') as f:
             pickle.dump(self.results, f)
         
+        # Save samples data if available
+        if hasattr(self, 'samples_data') and self.samples_data:
+            self.logger.info("Saving samples data...")
+            
+            # Save detokenized samples as JSON
+            detokenized_samples = {}
+            for model_name, data in self.samples_data.items():
+                detokenized_samples[model_name] = data['detokenized']
+            
+            samples_json_file = self.output_dir / 'samples_detokenized.json'
+            with open(samples_json_file, 'w') as f:
+                json.dump(detokenized_samples, f, indent=2)
+            
+            # Save complete samples data (including raw tensors) as pickle
+            samples_pickle_file = self.output_dir / 'samples_data.pkl'
+            with open(samples_pickle_file, 'wb') as f:
+                pickle.dump(self.samples_data, f)
+            
+            self.logger.info(f"  - Detokenized samples: {samples_json_file}")
+            self.logger.info(f"  - Complete samples data: {samples_pickle_file}")
+        
         # Save summary as CSV
         summary_data = []
         for model_name in self.results.get('log_likelihoods', {}).keys():
@@ -480,6 +501,9 @@ class ModelEvaluator:
             
             # Generate samples
             samples_data = self.generate_samples(models)
+            
+            # Store samples data for saving
+            self.samples_data = samples_data
             
             # Calculate log-likelihoods
             self.calculate_log_likelihoods(samples_data, models)
