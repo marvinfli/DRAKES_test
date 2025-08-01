@@ -2,7 +2,7 @@
 # This config will run all sampling methods on the pretrained model
 
 # Base path to your models
-base_path: '/n/holylabs/LABS/sitanc_lab/Users/mfli/DRAKES_test/data_and_model'
+base_path: '/n/holylabs/LABS/sitanc_lab/Users/mfli/soc-curriculum/DRAKES/data_and_model'
 
 # Model paths (relative to base_path)
 models:

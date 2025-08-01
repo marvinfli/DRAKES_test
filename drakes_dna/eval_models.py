@@ -107,7 +107,7 @@ class ModelEvaluator:
         """Load all models specified in configuration."""
         self.logger.info("Loading models...")
         
-        base_path = self.config['base_path']
+        base_path = os.environ.get('BASE_PATH')
         models = {}
         
         # Reinitialize Hydra
@@ -276,9 +276,9 @@ class ModelEvaluator:
         """Calculate oracle predictions for all samples."""
         self.logger.info("Calculating oracle predictions...")
         
-        # GOSAI predictions
+        # Pred-Activity predictions 
         for model_name, data in samples_data.items():
-            self.logger.info(f"Calculating GOSAI predictions for {model_name}...")
+            self.logger.info(f"Calculating Pred-Activity predictions for {model_name}...")
             
             preds = oracle.cal_gosai_pred_new(data['detokenized'], mode='eval')
             median_pred = np.median(preds[:, 0])

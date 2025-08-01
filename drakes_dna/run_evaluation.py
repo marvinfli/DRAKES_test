@@ -6,27 +6,31 @@ Usage example for eval_models.py
 
 import os
 import sys
+import argparse
 from datetime import datetime
 from eval_models import ModelEvaluator
 
+# python run_evaluation.py /path/to/config.yaml
 def main():
-    """Run evaluation with default configuration."""
+    """Run evaluation with specified configuration file."""
     
-    # Configuration file path
-    config_path = "eval_config.yaml"
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Run DRAKES DNA model evaluation.")
+    parser.add_argument('config_path', type=str, help='Path to the configuration YAML file.')
+    args = parser.parse_args()
     
     # Output directory with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     base_path = os.environ.get('BASE_PATH')
     if not base_path:
         raise EnvironmentError("BASE_PATH environment variable is not set.")
-    output_dir = f"{base_path}/evaluation_results_{timestamp}"
+    output_dir = f"{base_path}/evaluation/evaluation_results_{timestamp}"
     
-    print(f"Starting evaluation with config: {config_path}")
+    print(f"Starting evaluation with config: {args.config_path}")
     print(f"Output will be saved to: {output_dir}")
     
     # Create and run evaluator
-    evaluator = ModelEvaluator(config_path, output_dir)
+    evaluator = ModelEvaluator(args.config_path, output_dir)
     evaluator.run_evaluation()
     
     print(f"\nEvaluation completed!")
@@ -36,6 +40,7 @@ def main():
     print(f"  - {output_dir}/evaluation_results.json (complete results)")
     print(f"  - {output_dir}/motif_summary.csv (motif analysis)")
     print(f"  - {output_dir}/evaluation_*.log (detailed logs)")
+
 
 if __name__ == "__main__":
     main() 

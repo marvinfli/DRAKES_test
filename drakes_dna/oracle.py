@@ -12,7 +12,7 @@ from scipy.linalg import sqrtm
 from scipy.stats import pearsonr
 import torch.nn.functional as F
 
-base_path = '/n/holylabs/LABS/sitanc_lab/Users/mfli/DRAKES_test/data_and_model'
+base_path = '/n/holylabs/LABS/sitanc_lab/Users/mfli/soc-curriculum/DRAKES/data_and_model'
 
 
 def get_gosai_oracle(mode='train'):
