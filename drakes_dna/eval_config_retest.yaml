@@ -1,0 +1,35 @@
+# DRAKES DNA Model Evaluation Configuration
+
+# Model paths (relative to base_path)
+models:
+  finetuned_model: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_dna_conductor_20250731_201840_20250731_201927/model_999.ckpt"
+  pretrained_model: 'mdlm/outputs_gosai/pretrained.ckpt'
+  zero_alpha_model: 'mdlm/reward_bp_results_final/zero_alpha.ckpt'
+  cfg_model: 'mdlm/outputs_gosai/cfg.ckpt'
+
+# Sampling parameters
+num_sample_batches: 10
+num_samples_per_batch: 64
+
+# CFG parameters
+cfg_weight: 10
+cfg_prob: 0.1
+
+# TDS parameters  
+tds_alpha: 0.5
+tds_guidance_scale: 1000
+
+# CG parameters
+cg_guidance_scale: 300000
+
+# SMC parameters
+smc_alpha: 0.5
+
+# Likelihood calculation parameters
+likelihood_steps: 128
+
+# Random seed
+seed: 0
+
+# CUDA device
+cuda_device: '0' 

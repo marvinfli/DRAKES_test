@@ -51,17 +51,7 @@ echo "========================================"
 
 # Determine the run directory (this will be created by the finetuning script)
 # Format: alpha{alpha}_accum{num_accum_steps}_bsz{batch_size}_truncate{truncate_steps}_temp{gumbel_temp}_clip{gradnorm_clip}_{name}_{timestamp}
-RUN_DIR_NAME=$(ls -td "$RESULTS_DIR"/*/ | head -1)
-RUN_DIR=$(find "$RESULTS_DIR" -maxdepth 1 -type d -name "$RUN_DIR_NAME" | head -1)
-
-if [ -z "$RUN_DIR" ]; then
-    echo "ERROR: Could not find run directory matching pattern: $RUN_DIR_NAME"
-    echo "Available directories in $RESULTS_DIR:"
-    ls -la "$RESULTS_DIR/"
-    exit 1
-fi
-
-echo "Found run directory: $RUN_DIR"
+RUN_DIR="/n/holylabs/LABS/sitanc_lab/Users/mfli/soc-curriculum/DRAKES/data_and_model/mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_dna_conductor_20250731_201840_20250731_201927"
 
 # Find the last saved model (highest epoch number)
 LAST_MODEL=$(find "$RUN_DIR" -name "model_*.ckpt" | sort -V | tail -1)
