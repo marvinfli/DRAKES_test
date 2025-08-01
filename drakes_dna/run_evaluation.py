@@ -17,7 +17,10 @@ def main():
     
     # Output directory with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = f"/n/holylabs/LABS/sitanc_lab/Users/mfli/DRAKES_test/data_and_model/evaluation_results_{timestamp}"
+    base_path = os.environ.get('BASE_PATH')
+    if not base_path:
+        raise EnvironmentError("BASE_PATH environment variable is not set.")
+    output_dir = f"{base_path}/evaluation_results_{timestamp}"
     
     print(f"Starting evaluation with config: {config_path}")
     print(f"Output will be saved to: {output_dir}")

@@ -117,7 +117,7 @@ class ModelEvaluator:
         
         # Load main finetuned model
         if 'finetuned_model' in self.config['models']:
-            ckpt_path = os.path.join(base_path, self.config['models']['finetuned_model'])
+            ckpt_path = os.path.join(base_path,self.config['models']['finetuned_model'])
             cfg.eval.checkpoint_path = ckpt_path
             model = diffusion_gosai_update.Diffusion(cfg, eval=False).cuda()
             model.load_state_dict(torch.load(cfg.eval.checkpoint_path))
@@ -167,65 +167,80 @@ class ModelEvaluator:
         
         samples_data = {}
         
+        # Initialize reward model once for all controlled sampling methods
+        reward_model = None
+        if 'pretrained' in models:
+            reward_model = oracle.get_gosai_oracle(mode='train')
+            reward_model.eval()
+        
         for model_name, model in models.items():
-            self.logger.info(f"Generating samples for {model_name}...")
-            
-            all_detokenized_samples = []
-            all_raw_samples = []
-            
-            for _ in tqdm(range(num_batches), desc=f"Sampling {model_name}"):
-                if model_name == 'cfg':
-                    samples = model._sample(eval_sp_size=batch_size, w=self.config.get('cfg_weight', 10))
-                elif model_name == 'pretrained':
-                    # Handle different sampling methods for pretrained model
-                    reward_model = oracle.get_gosai_oracle(mode='train')
-                    reward_model.eval()
+            if model_name == 'pretrained':
+                # Generate samples using multiple methods for the pretrained model
+                sampling_methods = {
+                    'pretrained': lambda m: m._sample(eval_sp_size=batch_size),
+                    'pretrained_tds': lambda m: m.controlled_sample_TDS(
+                        reward_model=reward_model, 
+                        alpha=self.config.get('tds_alpha', 0.5),
+                        guidance_scale=self.config.get('tds_guidance_scale', 1000),
+                        eval_sp_size=batch_size
+                    ),
+                    'pretrained_cg': lambda m: m.controlled_sample_CG(
+                        reward_model=reward_model,
+                        guidance_scale=self.config.get('cg_guidance_scale', 300000),
+                        eval_sp_size=batch_size
+                    ),
+                    'pretrained_smc': lambda m: m.controlled_sample_SMC(
+                        reward_model=reward_model,
+                        alpha=self.config.get('smc_alpha', 0.5),
+                        eval_sp_size=batch_size
+                    )
+                }
+                
+                for method_name, sampling_func in sampling_methods.items():
+                    self.logger.info(f"Generating samples for {method_name}...")
                     
-                    # Regular sampling
-                    if self.config.get('use_regular_sampling', True):
-                        samples = model._sample(eval_sp_size=batch_size)
+                    all_detokenized_samples = []
+                    all_raw_samples = []
                     
-                    # TDS sampling
-                    elif self.config.get('use_tds_sampling', False):
-                        samples = model.controlled_sample_TDS(
-                            reward_model=reward_model, 
-                            alpha=self.config.get('tds_alpha', 0.5),
-                            guidance_scale=self.config.get('tds_guidance_scale', 1000),
-                            eval_sp_size=batch_size
-                        )
+                    for _ in tqdm(range(num_batches), desc=f"Sampling {method_name}"):
+                        samples = sampling_func(model)
+                        all_raw_samples.append(samples)
+                        detokenized_samples = dataloader_gosai.batch_dna_detokenize(samples.detach().cpu().numpy())
+                        all_detokenized_samples.extend(detokenized_samples)
                     
-                    # CG sampling
-                    elif self.config.get('use_cg_sampling', False):
-                        samples = model.controlled_sample_CG(
-                            reward_model=reward_model,
-                            guidance_scale=self.config.get('cg_guidance_scale', 300000),
-                            eval_sp_size=batch_size
-                        )
+                    all_raw_samples = torch.concat(all_raw_samples)
                     
-                    # SMC sampling
-                    elif self.config.get('use_smc_sampling', False):
-                        samples = model.controlled_sample_SMC(
-                            reward_model=reward_model,
-                            alpha=self.config.get('smc_alpha', 0.5),
-                            eval_sp_size=batch_size
-                        )
+                    samples_data[method_name] = {
+                        'detokenized': all_detokenized_samples,
+                        'raw': all_raw_samples
+                    }
+                    
+                    self.logger.info(f"Generated {len(all_detokenized_samples)} samples for {method_name}")
+            else:
+                # Handle other models normally
+                self.logger.info(f"Generating samples for {model_name}...")
+                
+                all_detokenized_samples = []
+                all_raw_samples = []
+                
+                for _ in tqdm(range(num_batches), desc=f"Sampling {model_name}"):
+                    if model_name == 'cfg':
+                        samples = model._sample(eval_sp_size=batch_size, w=self.config.get('cfg_weight', 10))
                     else:
                         samples = model._sample(eval_sp_size=batch_size)
-                else:
-                    samples = model._sample(eval_sp_size=batch_size)
+                    
+                    all_raw_samples.append(samples)
+                    detokenized_samples = dataloader_gosai.batch_dna_detokenize(samples.detach().cpu().numpy())
+                    all_detokenized_samples.extend(detokenized_samples)
                 
-                all_raw_samples.append(samples)
-                detokenized_samples = dataloader_gosai.batch_dna_detokenize(samples.detach().cpu().numpy())
-                all_detokenized_samples.extend(detokenized_samples)
-            
-            all_raw_samples = torch.concat(all_raw_samples)
-            
-            samples_data[model_name] = {
-                'detokenized': all_detokenized_samples,
-                'raw': all_raw_samples
-            }
-            
-            self.logger.info(f"Generated {len(all_detokenized_samples)} samples for {model_name}")
+                all_raw_samples = torch.concat(all_raw_samples)
+                
+                samples_data[model_name] = {
+                    'detokenized': all_detokenized_samples,
+                    'raw': all_raw_samples
+                }
+                
+                self.logger.info(f"Generated {len(all_detokenized_samples)} samples for {model_name}")
         
         return samples_data
     
@@ -233,7 +248,7 @@ class ModelEvaluator:
         """Calculate log-likelihoods for all samples."""
         self.logger.info("Calculating log-likelihoods...")
         
-        # Use pretrained model for likelihood calculation
+        # Use pretrained model for likelihood calculation (matching eval.ipynb behavior)
         likelihood_model = models.get('pretrained', list(models.values())[0])
         
         for model_name, data in samples_data.items():
