@@ -1,10 +1,9 @@
 name: multiflow
 channels:
   - pytorch
-  - nvidia
   - conda-forge
+  - nvidia
 dependencies:
-  - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=2_kmp_llvm
   - biopython=1.83=py310h2372a71_0
   - blas=1.0=mkl
@@ -23,43 +22,9 @@ dependencies:
   - icu=73.2=h59595ed_0
   - jinja2=3.1.3=pyhd8ed1ab_0
   - kiwisolver=1.4.5=py310hd41b1e2_1
-  - lcms2=2.16=hb7c19ff_0
+  - lcms2
   - ld_impl_linux-64=2.40=h41732ed_0
   - lerc=4.0.0=h27087fc_0
-  - libblas=3.9.0=16_linux64_mkl
-  - libbrotlicommon=1.1.0=hd590300_1
-  - libbrotlidec=1.1.0=hd590300_1
-  - libbrotlienc=1.1.0=hd590300_1
-  - libcblas=3.9.0=16_linux64_mkl
-  - libcublas=11.11.3.6=0
-  - libcufft=10.9.0.58=0
-  - libcufile=1.8.1.2=0
-  - libcurand=10.3.4.107=0
-  - libcusolver=11.4.1.48=0
-  - libcusparse=11.7.5.86=0
-  - libdeflate=1.19=hd590300_0
-  - libffi=3.4.2=h7f98852_5
-  - libgcc-ng=13.2.0=h807b86a_3
-  - libgfortran-ng=13.2.0=h69a702a_3
-  - libgfortran5=13.2.0=ha4646dd_3
-  - libgomp=13.2.0=h807b86a_3
-  - libhwloc=2.9.3=default_h554bfaf_1009
-  - libiconv=1.17=hd590300_2
-  - libjpeg-turbo=3.0.0=hd590300_1
-  - liblapack=3.9.0=16_linux64_mkl
-  - libnpp=11.8.0.86=0
-  - libnsl=2.0.1=hd590300_0
-  - libnvjpeg=11.9.0.86=0
-  - libopenblas=0.3.25=pthreads_h413a1c8_0
-  - libpng=1.6.39=h753d276_0
-  - libsqlite=3.44.2=h2797004_0
-  - libstdcxx-ng=13.2.0=h7e041cc_3
-  - libtiff=4.6.0=ha9c0a0a_2
-  - libuuid=2.38.1=h0b41bf4_0
-  - libwebp-base=1.3.2=hd590300_0
-  - libxcb=1.15=h0b41bf4_0
-  - libxml2=2.12.4=h232c23b_1
-  - libzlib=1.2.13=hd590300_5
   - llvm-openmp=15.0.7=h0cdce71_0
   - markupsafe=2.1.3=py310h2372a71_1
   - matplotlib-base=3.8.2=py310h62c0568_0
@@ -71,12 +36,12 @@ dependencies:
   - ncurses=6.4=h59595ed_2
   - networkx=3.2.1=pyhd8ed1ab_0
   - numpy=1.26.3=py310hb13e2d6_0
-  - openjpeg=2.5.0=h488ebb8_3
+  - openjpeg
   - openssl=3.2.0=hd590300_1
   - packaging=23.2=pyhd8ed1ab_0
   - pandas=2.1.4=py310hcc13569_0
   - patsy=0.5.6=pyhd8ed1ab_0
-  - pillow=10.2.0=py310h01dd4db_0
+  - pillow
   - pip=23.3.2=pyhd8ed1ab_0
   - pthread-stubs=0.4=h36c2ea0_1001
   - pyparsing=3.1.1=pyhd8ed1ab_0
@@ -98,7 +63,6 @@ dependencies:
   - tk=8.6.13=noxft_h4845f30_101
   - typing_extensions=4.9.0=pyha770c72_0
   - pytorch=2.0.1
-  - pytorch-cuda=11.7
   - tzdata=2023d=h0c530f3_0
   - unicodedata2=15.1.0=py310h2372a71_0
   - wheel=0.42.0=pyhd8ed1ab_0
