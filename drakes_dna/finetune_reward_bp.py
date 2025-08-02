@@ -29,23 +29,21 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
     new_model.config.exploration.end_exploration_epoch = args.end_exploration_epoch
 
     if args.end_exploration_epoch:
-        inverse_temp_schedule = list([1. for _ in range(ags.num_epochs)])
-        add_noise_schedule = list([0. for _ in range(ags.num_epochs)])
+        inverse_temp_schedule = list([1. for _ in range(args.num_epochs)])
+        multiply_noise_schedule = list([0. for _ in range(args.num_epochs)])
         if new_model.config.exploration.initial_inverse_temp:
-            inverse_temp_schedule[:end_exploration_epoch] = list(torch.linspace(
+            inverse_temp_schedule[:args.end_exploration_epoch] = list(torch.linspace(
                 new_model.config.exploration.initial_inverse_temp, 
                 1.0, 
                 steps=args.end_exploration_epoch
             ))
         if new_model.config.exploration.initial_random_noising:
-            add_noise_schedule[:end_exploration_epoch] = list(torch.linspace(
+            multiply_noise_schedule[:args.end_exploration_epoch] = list(torch.linspace(
                 new_model.config.exploration.initial_random_noising, 
-                0.0, 
+                1, 
                 steps=args.end_exploration_epoch
             ))
         
-        print(inverse_temp_schedule, random_noising_schedule)
-        breakpoint()
 
     new_model.train()
     torch.set_grad_enabled(True)
@@ -63,16 +61,16 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
         new_model.train()
 
         inverse_temp  = None
-        add_noise     = None
+        multiply_noise     = None
         if args.end_exploration_epoch:
             inverse_temp = inverse_temp_schedule[epoch_num]
-            add_noise    = random_noising_schedule[epoch_num]
+            multiply_noise    = multiply_noise_schedule[epoch_num]
         for _step in range(args.num_accum_steps):
             sample, last_x_list, condt_list, move_chance_t_list, copy_flag_list = new_model._sample_finetune_gradient(
                 eval_sp_size=args.batch_size, 
                 copy_flag_temp=args.copy_flag_temp, 
                 inverse_temp=inverse_temp, 
-                add_noise=add_noise
+                multiply_noise=multiply_noise
             )
             
             sample2 = torch.transpose(sample, 1, 2)
@@ -144,14 +142,14 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
         print(f"Epoch {epoch_num} Mean reward {np.mean(rewards):.6f} Mean reward eval {np.mean(rewards_eval):.6f} "
               f"Mean grad norm {tot_grad_norm:.6f} Mean loss {np.mean(losses):.6f} "
               f"Mean reward loss {np.mean(reward_losses):.6f} Mean kl loss {np.mean(kl_losses):.6f} "
-              f"Inverse temp {inverse_temp} Add noise {add_noise}")
+              f"Inverse temp {inverse_temp:.6f} Multiply noise {multiply_noise:.6f}")
         
         if args.name != 'debug':
             wandb.log({"epoch": epoch_num, "mean_reward": np.mean(rewards), "mean_reward_eval": np.mean(rewards_eval), 
             "mean_grad_norm": tot_grad_norm, "mean_loss": np.mean(losses), "mean reward loss": np.mean(reward_losses), 
-            "mean kl loss": np.mean(kl_losses), "inverse_temp" : inverse_temp, "add_noise" : add_noise})
+            "mean kl loss": np.mean(kl_losses), "inverse_temp" : inverse_temp, "multiply_noise" : multiply_noise})
         with open(log_path, 'a') as f:
-            f.write(f"Epoch {epoch_num} Mean reward {np.mean(rewards)} Mean reward eval {np.mean(rewards_eval)} Mean grad norm {tot_grad_norm} Mean loss {np.mean(losses)} Mean reward loss {np.mean(reward_losses)} Mean kl loss {np.mean(kl_losses)} Inverse temp {inverse_temp} Add noise {add_noise}\n")
+            f.write(f"Epoch {epoch_num} Mean reward {np.mean(rewards)} Mean reward eval {np.mean(rewards_eval)} Mean grad norm {tot_grad_norm} Mean loss {np.mean(losses)} Mean reward loss {np.mean(reward_losses)} Mean kl loss {np.mean(kl_losses)} Inverse temp {inverse_temp:.6f} Multiply noise {multiply_noise:.6f}\n")
         
         if (epoch_num+1) % args.save_every_n_epochs == 0:
             model_path = os.path.join(save_path, f'model_{epoch_num}.ckpt')
@@ -180,7 +178,7 @@ argparser.add_argument('--save_every_n_epochs', type=int, default=50)
 argparser.add_argument('--alpha', type=float, default=0.001)
 argparser.add_argument('--alpha_schedule_warmup', type=int, default=0)
 argparser.add_argument('--initial_inverse_temp', type=float, default=None, help='Initial inverse temperature, float <= 1')
-argparser.add_argument('--initial_random_noising', type=float, default=None, help='Initial random noising, float > 0')
+argparser.add_argument('--initial_random_noising', type=float, default=None, help='Initial random noising, float < 1')
 argparser.add_argument('--end_exploration_epoch', type=int, default=None, help='End exploration epoch, int < num_epochs')
 argparser.add_argument("--seed", type=int, default=0)
 args = argparser.parse_args()

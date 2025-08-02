@@ -459,7 +459,7 @@ class Diffusion(L.LightningModule):
     copy_flag = (x != self.mask_index).to(x.dtype)
     return p_x0, copy_flag * x + (1 - copy_flag) * _x
 
-  def _ddpm_update(self, x, t, dt, return_process=False):
+  def _ddpm_update(self, x, t, dt, return_process=False,inverse_temp=None, multiply_noise=None):
     sigma_t, _ = self.noise(t)
     sigma_s, _ = self.noise(t - dt)
     if sigma_t.ndim > 1:
@@ -475,12 +475,21 @@ class Diffusion(L.LightningModule):
     move_chance_s = move_chance_s[:, None, None]
     unet_conditioning = sigma_t
     log_p_x0 = self.forward(x, unet_conditioning)
+    if inverse_temp:
+      log_p_x0 *= inverse_temp
+      if multiply_noise:
+        q_xs = log_p_x0.exp()/log_p_x0.exp().sum() * (move_chance_t - move_chance_s) * multiply_noise
+      else:
+        q_xs = log_p_x0.exp()/log_p_x0.exp().sum() * (move_chance_t - move_chance_s) 
+    else:
+      q_xs = log_p_x0.exp() * (move_chance_t - move_chance_s) 
     assert move_chance_t.ndim == log_p_x0.ndim
-    q_xs = log_p_x0.exp() * (move_chance_t
-                             - move_chance_s)
-    q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
-
-    ## Marvin - modify here. Not sure if we should increase move_chance_s, etc.
+    
+    if multiply_noise:
+      q_xs[:,:,self.mask_index]  = 1-multiply_noise*(1-move_chance_s[:, :, 0])  
+    else:
+      q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
+    
     _x = _sample_categorical(q_xs)
     copy_flag = (x != self.mask_index).to(x.dtype)
 
@@ -563,7 +572,7 @@ class Diffusion(L.LightningModule):
         x = logits[:, :, :-1].argmax(dim=-1)
     return x
   
-  def _ddpm_update_finetune_gradient(self, x, t, dt, copy_flag_temp, return_process=False):
+  def _ddpm_update_finetune_gradient(self, x, t, dt, copy_flag_temp, return_process=False,inverse_temp=None, multiply_noise=None):
     # Hello
     # print("==== Iteration ====")
     # print("x.shape", x.shape)
@@ -590,16 +599,29 @@ class Diffusion(L.LightningModule):
     move_chance_s = move_chance_s[:, None, None]
     unet_conditioning = sigma_t
     log_p_x0 = self.forward(x, unet_conditioning)
+    if inverse_temp:
+      log_p_x0 *= inverse_temp
+      if multiply_noise:
+        q_xs = log_p_x0.exp()/log_p_x0.exp().sum() * (move_chance_t - move_chance_s) * multiply_noise
+      else:
+        q_xs = log_p_x0.exp()/log_p_x0.exp().sum() * (move_chance_t - move_chance_s) 
+    else:
+      q_xs = log_p_x0.exp() * (move_chance_t - move_chance_s) 
+
     assert move_chance_t.ndim == log_p_x0.ndim
+    
+    if multiply_noise:
+      q_xs[:,:,self.mask_index]  = 1-multiply_noise*(1-move_chance_s[:, :, 0])  
+    else:
+      q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
+           
     # print("log_p_x0 shape", log_p_x0.shape)
-    q_xs = log_p_x0.exp() * (move_chance_t
-                             - move_chance_s)
-    q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
     # print("q_xs shape", q_xs.shape)
     ## Marvin - modify here. Not sure if we should increase move_chance_s, etc.
+
     _x = _sample_categorical_gradient(q_xs, temp=self.config.finetuning.gumbel_softmax_temp)
-    print("_x shape", _x.shape)
-    breakpoint()
+    # print("_x shape", _x.shape)
+    # breakpoint()
 
     if copy_flag_temp is not None:
       copy_flag_prob = 1 - x[:, :, self.mask_index].unsqueeze(-1)
@@ -613,7 +635,7 @@ class Diffusion(L.LightningModule):
       return soft_copy_flag * x + (1 - soft_copy_flag) * _x
     
    
-  def _sample_finetune_gradient(self, num_steps=None, eps=1e-5, eval_sp_size=None, copy_flag_temp=None, inverse_temp=None, add_noise=None):
+  def _sample_finetune_gradient(self, num_steps=None, eps=1e-5, eval_sp_size=None, copy_flag_temp=None, inverse_temp=None, multiply_noise=None):
     """Generate samples from the model."""
     assert self.parameterization == 'subs' and self.sampler == 'ddpm'
     if eval_sp_size is None:
@@ -642,12 +664,12 @@ class Diffusion(L.LightningModule):
         x.shape[0], 1, device=self.device)
       if self.sampler == 'ddpm':
         if i < num_steps - self.config.finetuning.truncate_steps:
-          x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update(x, t, dt, return_process=True)
+          x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update(x, t, dt, return_process=True, inverse_temp=inverse_temp, multiply_noise=multiply_noise)
           x = x.detach()
           copy_flag = copy_flag.unsqueeze(-1)
           last_x = F.one_hot(last_x, num_classes=self.vocab_size).to(torch.float32).detach()
         else: 
-          x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update_finetune_gradient(x, t, dt, copy_flag_temp, return_process=True)
+          x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update_finetune_gradient(x, t, dt, copy_flag_temp, return_process=True, inverse_temp=inverse_temp, multiply_noise=multiply_noise)
 
         LOGGER.info("Iteration:", i)
         LOGGER.info("x:", type(x), x.shape)
