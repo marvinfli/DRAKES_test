@@ -479,7 +479,8 @@ class Diffusion(L.LightningModule):
     q_xs = log_p_x0.exp() * (move_chance_t
                              - move_chance_s)
     q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
-    
+
+    ## Marvin - modify here. Not sure if we should increase move_chance_s, etc.
     _x = _sample_categorical(q_xs)
     copy_flag = (x != self.mask_index).to(x.dtype)
 
@@ -585,6 +586,8 @@ class Diffusion(L.LightningModule):
     q_xs = log_p_x0.exp() * (move_chance_t
                              - move_chance_s)
     q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
+
+    ## Marvin - modify here. Not sure if we should increase move_chance_s, etc.
     _x = _sample_categorical_gradient(q_xs, temp=self.config.finetuning.gumbel_softmax_temp)
     
     if copy_flag_temp is not None:
