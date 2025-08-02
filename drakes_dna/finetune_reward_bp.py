@@ -27,6 +27,7 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
     new_model.config.exploration.initial_inverse_temp = args.initial_inverse_temp
     new_model.config.exploration.initial_random_noising = args.initial_random_noising
     new_model.config.exploration.end_exploration_epoch = args.end_exploration_epoch
+    new_model.config.exploration.end_exploration_step = args.end_exploration_step
 
     if args.end_exploration_epoch:
         inverse_temp_schedule = list([1. for _ in range(args.num_epochs)])
@@ -70,7 +71,8 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
                 eval_sp_size=args.batch_size, 
                 copy_flag_temp=args.copy_flag_temp, 
                 inverse_temp=inverse_temp, 
-                multiply_noise=multiply_noise
+                multiply_noise=multiply_noise,
+                exploration_max_step=args.end_exploration_step
             )
             
             sample2 = torch.transpose(sample, 1, 2)
@@ -180,6 +182,7 @@ argparser.add_argument('--alpha_schedule_warmup', type=int, default=0)
 argparser.add_argument('--initial_inverse_temp', type=float, default=None, help='Initial inverse temperature, float <= 1')
 argparser.add_argument('--initial_random_noising', type=float, default=None, help='Initial random noising, float < 1')
 argparser.add_argument('--end_exploration_epoch', type=int, default=None, help='End exploration epoch, int < num_epochs')
+argparser.add_argument('--end_exploration_step', type=int, default=None, help='End exploration epoch, int < num_epochs')
 argparser.add_argument("--seed", type=int, default=0)
 args = argparser.parse_args()
 

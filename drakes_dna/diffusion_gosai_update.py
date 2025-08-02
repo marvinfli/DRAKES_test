@@ -635,7 +635,7 @@ class Diffusion(L.LightningModule):
       return soft_copy_flag * x + (1 - soft_copy_flag) * _x
     
    
-  def _sample_finetune_gradient(self, num_steps=None, eps=1e-5, eval_sp_size=None, copy_flag_temp=None, inverse_temp=None, multiply_noise=None):
+  def _sample_finetune_gradient(self, num_steps=None, eps=1e-5, eval_sp_size=None, copy_flag_temp=None, inverse_temp=None, multiply_noise=None, exploration_max_step=None):
     """Generate samples from the model."""
     assert self.parameterization == 'subs' and self.sampler == 'ddpm'
     if eval_sp_size is None:
@@ -663,13 +663,22 @@ class Diffusion(L.LightningModule):
       t = timesteps[i] * torch.ones(
         x.shape[0], 1, device=self.device)
       if self.sampler == 'ddpm':
+        # Handle step-based exploration: only apply exploration before exploration_max_step
+        current_inverse_temp = inverse_temp
+        current_multiply_noise = multiply_noise
+        
+        if exploration_max_step is not None and i >= exploration_max_step:
+          # Stop exploration after exploration_max_step
+          current_inverse_temp = None
+          current_multiply_noise = None
+        
         if i < num_steps - self.config.finetuning.truncate_steps:
-          x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update(x, t, dt, return_process=True, inverse_temp=inverse_temp, multiply_noise=multiply_noise)
+          x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update(x, t, dt, return_process=True, inverse_temp=current_inverse_temp, multiply_noise=current_multiply_noise)
           x = x.detach()
           copy_flag = copy_flag.unsqueeze(-1)
           last_x = F.one_hot(last_x, num_classes=self.vocab_size).to(torch.float32).detach()
         else: 
-          x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update_finetune_gradient(x, t, dt, copy_flag_temp, return_process=True, inverse_temp=inverse_temp, multiply_noise=multiply_noise)
+          x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update_finetune_gradient(x, t, dt, copy_flag_temp, return_process=True, inverse_temp=current_inverse_temp, multiply_noise=current_multiply_noise)
 
         LOGGER.info("Iteration:", i)
         LOGGER.info("x:", type(x), x.shape)

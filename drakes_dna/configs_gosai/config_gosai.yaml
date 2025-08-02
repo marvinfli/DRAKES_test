@@ -108,5 +108,6 @@ finetuning:
 exploration:
   initial_inverse_temp : null
   initial_random_noising : null
+  end_step : null
   end_exploration_epoch : null
 
