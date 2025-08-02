@@ -41,7 +41,7 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
         if new_model.config.exploration.initial_random_noising:
             multiply_noise_schedule[:args.end_exploration_epoch] = list(torch.linspace(
                 new_model.config.exploration.initial_random_noising, 
-                1, 
+                1.0, 
                 steps=args.end_exploration_epoch
             ))
         
