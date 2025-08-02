@@ -469,12 +469,6 @@ class Diffusion(L.LightningModule):
     assert sigma_t.ndim == 1, sigma_t.shape
     assert sigma_s.ndim == 1, sigma_s.shape
 
-    LOGGER.info("sigma_t shape:", sigma_t.shape, "values:", sigma_t)
-    LOGGER.info("sigma_s shape:", sigma_s.shape, "values:", sigma_s)
-    LOGGER.info("move_chance_t shape:", move_chance_t.shape, "values:", move_chance_t)
-    LOGGER.info("move_chance_s shape:", move_chance_s.shape, "values:", move_chance_s)
-    LOGGER.info("unet_conditioning shape:", unet_conditioning.shape, "values:", unet_conditioning)
-    LOGGER.info("log_p_x0 shape:", log_p_x0.shape, "values:", log_p_x0)
     move_chance_t = 1 - torch.exp(-sigma_t) # t
     move_chance_s = 1 - torch.exp(-sigma_s)
     move_chance_t = move_chance_t[:, None, None]
@@ -485,8 +479,20 @@ class Diffusion(L.LightningModule):
     q_xs = log_p_x0.exp() * (move_chance_t
                              - move_chance_s)
     q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
+    
     _x = _sample_categorical(q_xs)
     copy_flag = (x != self.mask_index).to(x.dtype)
+
+
+    print("sigma_t shape:", sigma_t.shape)
+    print("sigma_s shape:", sigma_s.shape)
+    print("unet_conditioning shape:", unet_conditioning.shape)
+    print("log_p_x0 shape:", log_p_x0.shape)
+    print("move_chance_t shape:", move_chance_t.shape)
+    print("move_chance_s shape:", move_chance_s.shape)
+    print("q_xs shape:", q_xs.shape)
+    print("copy_flag shape:", copy_flag.shape)
+
     if return_process:
       return copy_flag * x + (1 - copy_flag) * _x, x, unet_conditioning, move_chance_t, copy_flag
     else:
@@ -629,7 +635,6 @@ class Diffusion(L.LightningModule):
           LOGGER.info("condt:", type(condt), condt.shape, condt)
           LOGGER.info("move_chance_t:", type(move_chance_t), move_chance_t.shape, move_chance_t)
           LOGGER.info("copy_flag:", type(copy_flag), copy_flag.shape, copy_flag)
-          breakpoint()
           x = x.detach()
           copy_flag = copy_flag.unsqueeze(-1)
           last_x = F.one_hot(last_x, num_classes=self.vocab_size).to(torch.float32).detach()
