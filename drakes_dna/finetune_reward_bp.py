@@ -38,6 +38,10 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
         new_model.train()
         for _step in range(args.num_accum_steps):
             sample, last_x_list, condt_list, move_chance_t_list, copy_flag_list = new_model._sample_finetune_gradient(eval_sp_size=args.batch_size, copy_flag_temp=args.copy_flag_temp) # [bsz, seqlen, 4]
+            breakpoint()
+            for var_name, var in [("sample", sample), ("last_x_list", last_x_list), ("condt_list", condt_list), 
+                                  ("move_chance_t_list", move_chance_t_list), ("copy_flag_list", copy_flag_list)]:
+                print(f"Variable Name: {var_name}, Shape: {var.shape if isinstance(var, torch.Tensor) else len(var)}, Type: {type(var)}")
             sample2 = torch.transpose(sample, 1, 2)
             preds = new_model_y(sample2).squeeze(-1) # [bsz, 3]
             reward = preds[:, 0]

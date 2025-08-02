@@ -474,12 +474,21 @@ class Diffusion(L.LightningModule):
     move_chance_s = move_chance_s[:, None, None]
     unet_conditioning = sigma_t
     log_p_x0 = self.forward(x, unet_conditioning)
+    print("move_chance_t shape:", move_chance_t.shape)
+    print("move_chance_s shape:", move_chance_s.shape)
+    print("unet_conditioning shape:", unet_conditioning.shape)
+    print("log_p_x0 shape:", log_p_x0.shape)
+    print("log_p_x0 max:", log_p_x0.max())
     assert move_chance_t.ndim == log_p_x0.ndim
     q_xs = log_p_x0.exp() * (move_chance_t
                              - move_chance_s)
     q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
-    _x = _sample_categorical(q_xs)
+    print("q_xs shape:", q_xs.shape)
+    ## Marvin - maybe flatten this to be closer to exploration?
+    _x = _sample_categorical(q_xs) 
     copy_flag = (x != self.mask_index).to(x.dtype)
+    print("_x.unique()", _x.unique())
+    print("copy_flag.unique()", copy_flag.unique())
     if return_process:
       return copy_flag * x + (1 - copy_flag) * _x, x, unet_conditioning, move_chance_t, copy_flag
     else:
@@ -607,6 +616,9 @@ class Diffusion(L.LightningModule):
     condt_list = []
     move_chance_t_list = []
     copy_flag_list = []
+    print("x.shape:", x.shape)
+    print("batch_size_per_gpu:", batch_size_per_gpu)
+    print("x.unique():", x.unique())
 
     for i in range(num_steps):
       t = timesteps[i] * torch.ones(
@@ -619,13 +631,22 @@ class Diffusion(L.LightningModule):
           last_x = F.one_hot(last_x, num_classes=self.vocab_size).to(torch.float32).detach()
         else: 
           x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update_finetune_gradient(x, t, dt, copy_flag_temp, return_process=True)
-      
+        print("#"*10)
+        print("Iteration:", i)
+        print("x:", type(x), x.shape)
+        print("x.unique():", x.unique())
+        print("last_x:", type(last_x), last_x.shape)
+        print("condt:", type(condt), condt.shape)
+        print("move_chance_t:", type(move_chance_t), move_chance_t.shape)
+        print("move_chance_t.unique():", move_chance_t.unique())
+        print("copy_flag:", type(copy_flag), copy_flag.shape)      
       last_x_list.append(last_x)
       condt_list.append(condt)
       move_chance_t_list.append(move_chance_t)
       copy_flag_list.append(copy_flag)
-
+    
     x_argmax = x[:, :, :-1].argmax(dim=-1)
+    breakpoint()
     x_argmax = torch.nn.functional.one_hot(x_argmax, num_classes=self.vocab_size-1).to(torch.float32)
     return x[:, :, :-1] + (x_argmax - x[:, :, :-1]).detach(), last_x_list, condt_list, move_chance_t_list, copy_flag_list
   
