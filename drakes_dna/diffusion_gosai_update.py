@@ -632,18 +632,19 @@ class Diffusion(L.LightningModule):
       if self.sampler == 'ddpm':
         if i < num_steps - self.config.finetuning.truncate_steps:
           x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update(x, t, dt, return_process=True)
-          LOGGER.info("Iteration:", i)
-          LOGGER.info("x:", type(x), x.shape, x, x.unique())
-          LOGGER.info("last_x:", type(last_x), last_x.shape, last_x)
-          LOGGER.info("condt:", type(condt), condt.shape, condt)
-          LOGGER.info("move_chance_t:", type(move_chance_t), move_chance_t.shape, move_chance_t)
-          LOGGER.info("copy_flag:", type(copy_flag), copy_flag.shape, copy_flag)
           x = x.detach()
           copy_flag = copy_flag.unsqueeze(-1)
           last_x = F.one_hot(last_x, num_classes=self.vocab_size).to(torch.float32).detach()
         else: 
           x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update_finetune_gradient(x, t, dt, copy_flag_temp, return_process=True)
-      
+
+        LOGGER.info("Iteration:", i)
+        LOGGER.info("x:", type(x), x.shape)
+        LOGGER.info("last_x:", type(last_x), last_x.shape)
+        LOGGER.info("condt:", type(condt), condt.shape)
+        LOGGER.info("move_chance_t:", type(move_chance_t), move_chance_t.shape)
+        LOGGER.info("copy_flag:", type(copy_flag), copy_flag.shape)
+        
       last_x_list.append(last_x)
       condt_list.append(condt)
       move_chance_t_list.append(move_chance_t)
