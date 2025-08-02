@@ -564,10 +564,17 @@ class Diffusion(L.LightningModule):
     return x
   
   def _ddpm_update_finetune_gradient(self, x, t, dt, copy_flag_temp, return_process=False):
-    
+    # print("==== Iteration ====")
+    # print("x.shape", x.shape)
+    # print("x.unique():", x.unique())
     if x.ndim == 2 or x.shape[-1] != self.vocab_size:
       x = F.one_hot(x, num_classes=self.vocab_size).to(torch.float32)
 
+    # print("Shape of x:", x.shape)
+    # print("x.unique():", x.unique())
+    # print("Shape of t:", t.shape)
+    # print("Shape of copy_flag_temp:", None if copy_flag_temp is None else copy_flag_temp.shape)
+    # print("Return process flag:", return_process)
     sigma_t, _ = self.noise(t)
     sigma_s, _ = self.noise(t - dt)
     if sigma_t.ndim > 1:
@@ -583,13 +590,16 @@ class Diffusion(L.LightningModule):
     unet_conditioning = sigma_t
     log_p_x0 = self.forward(x, unet_conditioning)
     assert move_chance_t.ndim == log_p_x0.ndim
+    print("log_p_x0 shape", log_p_x0.shape)
     q_xs = log_p_x0.exp() * (move_chance_t
                              - move_chance_s)
     q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
-
+    print("q_xs shape", q_xs.shape)
     ## Marvin - modify here. Not sure if we should increase move_chance_s, etc.
     _x = _sample_categorical_gradient(q_xs, temp=self.config.finetuning.gumbel_softmax_temp)
-    
+    print("_x shape", _x.shape)
+    breakpoint()
+
     if copy_flag_temp is not None:
       copy_flag_prob = 1 - x[:, :, self.mask_index].unsqueeze(-1)
       soft_copy_flag = torch.nn.functional.sigmoid(copy_flag_prob/copy_flag_temp)
