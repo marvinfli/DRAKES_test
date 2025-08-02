@@ -613,7 +613,7 @@ class Diffusion(L.LightningModule):
       return soft_copy_flag * x + (1 - soft_copy_flag) * _x
     
    
-  def _sample_finetune_gradient(self, num_steps=None, eps=1e-5, eval_sp_size=None, copy_flag_temp=None):
+  def _sample_finetune_gradient(self, num_steps=None, eps=1e-5, eval_sp_size=None, copy_flag_temp=None, inverse_temp=None, add_noise=None):
     """Generate samples from the model."""
     assert self.parameterization == 'subs' and self.sampler == 'ddpm'
     if eval_sp_size is None:

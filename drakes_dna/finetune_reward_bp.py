@@ -28,24 +28,24 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
     new_model.config.exploration.initial_random_noising = args.initial_random_noising
     new_model.config.exploration.end_exploration_epoch = args.end_exploration_epoch
 
-    inverse_temp_schedule = list([1. for _ in range(ags.num_epochs)])
-    random_noising_schedule = list([0. for _ in range(ags.num_epochs)])
-    if end_exploration_epoch:
+    if args.end_exploration_epoch:
+        inverse_temp_schedule = list([1. for _ in range(ags.num_epochs)])
+        add_noise_schedule = list([0. for _ in range(ags.num_epochs)])
         if new_model.config.exploration.initial_inverse_temp:
             inverse_temp_schedule[:end_exploration_epoch] = list(torch.linspace(
                 new_model.config.exploration.initial_inverse_temp, 
                 1.0, 
-                steps=end_exploration_epoch
+                steps=args.end_exploration_epoch
             ))
         if new_model.config.exploration.initial_random_noising:
-            random_noising_schedule[:end_exploration_epoch] = list(torch.linspace(
+            add_noise_schedule[:end_exploration_epoch] = list(torch.linspace(
                 new_model.config.exploration.initial_random_noising, 
                 0.0, 
-                steps=end_exploration_epoch
+                steps=args.end_exploration_epoch
             ))
         
-    print(inverse_temp_schedule, random_noising_schedule)
-    breakpoint()
+        print(inverse_temp_schedule, random_noising_schedule)
+        breakpoint()
 
     new_model.train()
     torch.set_grad_enabled(True)
@@ -61,8 +61,19 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
         kl_losses = []
         tot_grad_norm = 0.0
         new_model.train()
+
+        inverse_temp  = None
+        add_noise     = None
+        if args.end_exploration_epoch:
+            inverse_temp = inverse_temp_schedule[epoch_num]
+            add_noise    = random_noising_schedule[epoch_num]
         for _step in range(args.num_accum_steps):
-            sample, last_x_list, condt_list, move_chance_t_list, copy_flag_list = new_model._sample_finetune_gradient(eval_sp_size=args.batch_size, copy_flag_temp=args.copy_flag_temp) # [bsz, seqlen, 4]
+            sample, last_x_list, condt_list, move_chance_t_list, copy_flag_list = new_model._sample_finetune_gradient(
+                eval_sp_size=args.batch_size, 
+                copy_flag_temp=args.copy_flag_temp, 
+                inverse_temp=inverse_temp, 
+                add_noise=add_noise
+            )
             
             sample2 = torch.transpose(sample, 1, 2)
             preds = new_model_y(sample2).squeeze(-1) # [bsz, 3]
@@ -130,13 +141,17 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
         reward_losses = np.array(reward_losses)
         kl_losses = np.array(kl_losses)
 
-        print("Epoch %d"%epoch_num, "Mean reward %f"%np.mean(rewards), "Mean reward eval %f"%np.mean(rewards_eval), 
-        "Mean grad norm %f"%tot_grad_norm, "Mean loss %f"%np.mean(losses), "Mean reward loss %f"%np.mean(reward_losses), "Mean kl loss %f"%np.mean(kl_losses))
+        print(f"Epoch {epoch_num} Mean reward {np.mean(rewards):.6f} Mean reward eval {np.mean(rewards_eval):.6f} "
+              f"Mean grad norm {tot_grad_norm:.6f} Mean loss {np.mean(losses):.6f} "
+              f"Mean reward loss {np.mean(reward_losses):.6f} Mean kl loss {np.mean(kl_losses):.6f} "
+              f"Inverse temp {inverse_temp} Add noise {add_noise}")
+        
         if args.name != 'debug':
             wandb.log({"epoch": epoch_num, "mean_reward": np.mean(rewards), "mean_reward_eval": np.mean(rewards_eval), 
-            "mean_grad_norm": tot_grad_norm, "mean_loss": np.mean(losses), "mean reward loss": np.mean(reward_losses), "mean kl loss": np.mean(kl_losses)})
+            "mean_grad_norm": tot_grad_norm, "mean_loss": np.mean(losses), "mean reward loss": np.mean(reward_losses), 
+            "mean kl loss": np.mean(kl_losses), "inverse_temp" : inverse_temp, "add_noise" : add_noise})
         with open(log_path, 'a') as f:
-            f.write(f"Epoch {epoch_num} Mean reward {np.mean(rewards)} Mean reward eval {np.mean(rewards_eval)} Mean grad norm {tot_grad_norm} Mean loss {np.mean(losses)} Mean reward loss {np.mean(reward_losses)} Mean kl loss {np.mean(kl_losses)}\n")
+            f.write(f"Epoch {epoch_num} Mean reward {np.mean(rewards)} Mean reward eval {np.mean(rewards_eval)} Mean grad norm {tot_grad_norm} Mean loss {np.mean(losses)} Mean reward loss {np.mean(reward_losses)} Mean kl loss {np.mean(kl_losses)} Inverse temp {inverse_temp} Add noise {add_noise}\n")
         
         if (epoch_num+1) % args.save_every_n_epochs == 0:
             model_path = os.path.join(save_path, f'model_{epoch_num}.ckpt')
