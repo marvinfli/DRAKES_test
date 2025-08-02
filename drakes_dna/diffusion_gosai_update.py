@@ -485,14 +485,14 @@ class Diffusion(L.LightningModule):
     copy_flag = (x != self.mask_index).to(x.dtype)
 
 
-    print("sigma_t shape:", sigma_t.shape)
-    print("sigma_s shape:", sigma_s.shape)
-    print("unet_conditioning shape:", unet_conditioning.shape)
-    print("log_p_x0 shape:", log_p_x0.shape)
-    print("move_chance_t shape:", move_chance_t.shape)
-    print("move_chance_s shape:", move_chance_s.shape)
-    print("q_xs shape:", q_xs.shape)
-    print("copy_flag shape:", copy_flag.shape)
+    # print("sigma_t shape:", sigma_t.shape)
+    # print("sigma_s shape:", sigma_s.shape)
+    # print("unet_conditioning shape:", unet_conditioning.shape)
+    # print("log_p_x0 shape:", log_p_x0.shape)
+    # print("move_chance_t shape:", move_chance_t.shape)
+    # print("move_chance_s shape:", move_chance_s.shape)
+    # print("q_xs shape:", q_xs.shape)
+    # print("copy_flag shape:", copy_flag.shape)
 
     if return_process:
       return copy_flag * x + (1 - copy_flag) * _x, x, unet_conditioning, move_chance_t, copy_flag
@@ -633,7 +633,7 @@ class Diffusion(L.LightningModule):
         if i < num_steps - self.config.finetuning.truncate_steps:
           x, last_x, condt, move_chance_t, copy_flag = self._ddpm_update(x, t, dt, return_process=True)
           LOGGER.info("Iteration:", i)
-          LOGGER.info("x:", type(x), x.shape, x)
+          LOGGER.info("x:", type(x), x.shape, x, x.unique())
           LOGGER.info("last_x:", type(last_x), last_x.shape, last_x)
           LOGGER.info("condt:", type(condt), condt.shape, condt)
           LOGGER.info("move_chance_t:", type(move_chance_t), move_chance_t.shape, move_chance_t)
