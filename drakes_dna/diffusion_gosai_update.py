@@ -484,7 +484,7 @@ class Diffusion(L.LightningModule):
                              - move_chance_s)
     q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
     print("q_xs shape:", q_xs.shape)
-    ## Marvin - maybe flatten this to be closer to exploration?
+    ## Marvin - maybe flatten this to be closer to exploration? (487)
     _x = _sample_categorical(q_xs) 
     copy_flag = (x != self.mask_index).to(x.dtype)
     print("_x.unique()", _x.unique())
