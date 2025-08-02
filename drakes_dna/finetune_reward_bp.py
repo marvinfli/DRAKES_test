@@ -22,6 +22,31 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
     new_model.config.finetuning.truncate_steps = args.truncate_steps
     new_model.config.finetuning.gumbel_softmax_temp = args.gumbel_temp
     dt = (1 - eps) / args.total_num_steps
+
+    # Exploration-absed codes
+    new_model.config.exploration.initial_inverse_temp = args.initial_inverse_temp
+    new_model.config.exploration.initial_random_noising = args.initial_random_noising
+    new_model.config.exploration.end_exploration_epoch = args.end_exploration_epoch
+
+    inverse_temp_schedule = list([1. for _ in range(ags.num_epochs)])
+    random_noising_schedule = list([0. for _ in range(ags.num_epochs)])
+    if end_exploration_epoch:
+        if new_model.config.exploration.initial_inverse_temp:
+            inverse_temp_schedule[:end_exploration_epoch] = list(torch.linspace(
+                new_model.config.exploration.initial_inverse_temp, 
+                1.0, 
+                steps=end_exploration_epoch
+            ))
+        if new_model.config.exploration.initial_random_noising:
+            random_noising_schedule[:end_exploration_epoch] = list(torch.linspace(
+                new_model.config.exploration.initial_random_noising, 
+                0.0, 
+                steps=end_exploration_epoch
+            ))
+        
+    print(inverse_temp_schedule, random_noising_schedule)
+    breakpoint()
+
     new_model.train()
     torch.set_grad_enabled(True)
     optim = torch.optim.Adam(new_model.parameters(), lr=args.learning_rate)
@@ -139,10 +164,13 @@ argparser.add_argument('--copy_flag_temp', type=float, default=None)
 argparser.add_argument('--save_every_n_epochs', type=int, default=50)
 argparser.add_argument('--alpha', type=float, default=0.001)
 argparser.add_argument('--alpha_schedule_warmup', type=int, default=0)
+argparser.add_argument('--initial_inverse_temp', type=float, default=None, help='Initial inverse temperature, float <= 1')
+argparser.add_argument('--initial_random_noising', type=float, default=None, help='Initial random noising, float > 0')
+argparser.add_argument('--end_exploration_epoch', type=int, default=None, help='End exploration epoch, int < num_epochs')
 argparser.add_argument("--seed", type=int, default=0)
 args = argparser.parse_args()
-print(args)
 
+print(args)
 # pretrained model path
 CKPT_PATH = os.path.join(args.base_path, 'mdlm/outputs_gosai/pretrained.ckpt')
 log_base_dir = os.path.join(args.base_path, 'mdlm/reward_bp_results_final')

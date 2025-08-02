@@ -591,11 +591,11 @@ class Diffusion(L.LightningModule):
     unet_conditioning = sigma_t
     log_p_x0 = self.forward(x, unet_conditioning)
     assert move_chance_t.ndim == log_p_x0.ndim
-    print("log_p_x0 shape", log_p_x0.shape)
+    # print("log_p_x0 shape", log_p_x0.shape)
     q_xs = log_p_x0.exp() * (move_chance_t
                              - move_chance_s)
     q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
-    print("q_xs shape", q_xs.shape)
+    # print("q_xs shape", q_xs.shape)
     ## Marvin - modify here. Not sure if we should increase move_chance_s, etc.
     _x = _sample_categorical_gradient(q_xs, temp=self.config.finetuning.gumbel_softmax_temp)
     print("_x shape", _x.shape)

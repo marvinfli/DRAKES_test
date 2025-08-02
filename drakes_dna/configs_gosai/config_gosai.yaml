@@ -104,3 +104,9 @@ checkpointing:
 finetuning:
   gumbel_softmax_temp: 1.0
   truncate_steps: 3
+
+exploration:
+  initial_inverse_temp : null
+  initial_random_noising : null
+  end_exploration_epoch : null
+
