@@ -564,6 +564,7 @@ class Diffusion(L.LightningModule):
     return x
   
   def _ddpm_update_finetune_gradient(self, x, t, dt, copy_flag_temp, return_process=False):
+    # Hello
     # print("==== Iteration ====")
     # print("x.shape", x.shape)
     # print("x.unique():", x.unique())
