@@ -1,0 +1,13 @@
+========================================
+DRAKES DNA Exploration Hyperparameter Sweep
+Job ID: 28425095
+Array Task ID: 2
+Node: holygpu8a18203
+========================================
+========================================
+Hyperparameters for this run:
+  end_exploration_epoch: 100
+  initial_inverse_temp: 0.2
+  initial_random_noising: 0.1
+  run_name: sweep_epoch100_temp0.2_noise0.1_20250803_110247
+========================================

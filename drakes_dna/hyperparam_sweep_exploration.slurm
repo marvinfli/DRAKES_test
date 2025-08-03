@@ -5,7 +5,7 @@
 #SBATCH --gres gpu:nvidia_h100_80gb_hbm3:1
 #SBATCH --mem=50G
 #SBATCH --time=12:00:00
-#SBATCH --array=0-26
+#SBATCH --array=0-11
 #SBATCH --output=logs/hyperparam_sweep_%A_%a.out
 #SBATCH --error=logs/hyperparam_sweep_%A_%a.err
 
@@ -27,35 +27,35 @@ conda activate sedd
 export CUDA_VISIBLE_DEVICES=0
 
 # Define hyperparameter grids
-INITIAL_INVERSE_TEMP_VALUES=(0.01 0.5 0.5)
-INITIAL_RANDOM_NOISING_VALUES=(0.1 0.5 0.7)
-END_EXPLORATION_STEP_VALUES=(5 10 20)
+END_EXPLORATION_EPOCH_VALUES=(100 300 500)
+INITIAL_INVERSE_TEMP_VALUES=(0.01 0.2)
+INITIAL_RANDOM_NOISING_VALUES=(0.1 0.5)
 
 # Calculate which combination this array task should run
-# 3x3x3 = 27 combinations total (indices 0-26)
+# 3x2x2 = 12 combinations total (indices 0-11)
+NUM_EPOCH_VALUES=${#END_EXPLORATION_EPOCH_VALUES[@]}
 NUM_TEMP_VALUES=${#INITIAL_INVERSE_TEMP_VALUES[@]}
 NUM_NOISE_VALUES=${#INITIAL_RANDOM_NOISING_VALUES[@]}
-NUM_STEP_VALUES=${#END_EXPLORATION_STEP_VALUES[@]}
 
 # Convert linear array index to 3D indices
-TEMP_IDX=$((SLURM_ARRAY_TASK_ID / (NUM_NOISE_VALUES * NUM_STEP_VALUES)))
-NOISE_IDX=$(((SLURM_ARRAY_TASK_ID % (NUM_NOISE_VALUES * NUM_STEP_VALUES)) / NUM_STEP_VALUES))
-STEP_IDX=$((SLURM_ARRAY_TASK_ID % NUM_STEP_VALUES))
+EPOCH_IDX=$((SLURM_ARRAY_TASK_ID / (NUM_TEMP_VALUES * NUM_NOISE_VALUES)))
+TEMP_IDX=$(((SLURM_ARRAY_TASK_ID % (NUM_TEMP_VALUES * NUM_NOISE_VALUES)) / NUM_NOISE_VALUES))
+NOISE_IDX=$((SLURM_ARRAY_TASK_ID % NUM_NOISE_VALUES))
 
 # Get the actual parameter values
+END_EXPLORATION_EPOCH=${END_EXPLORATION_EPOCH_VALUES[$EPOCH_IDX]}
 INITIAL_INVERSE_TEMP=${INITIAL_INVERSE_TEMP_VALUES[$TEMP_IDX]}
 INITIAL_RANDOM_NOISING=${INITIAL_RANDOM_NOISING_VALUES[$NOISE_IDX]}
-END_EXPLORATION_STEP=${END_EXPLORATION_STEP_VALUES[$STEP_IDX]}
 
 # Generate run name with timestamp and parameters
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-RUN_NAME="sweep_temp${INITIAL_INVERSE_TEMP}_noise${INITIAL_RANDOM_NOISING}_step${END_EXPLORATION_STEP}_${TIMESTAMP}"
+RUN_NAME="sweep_epoch${END_EXPLORATION_EPOCH}_temp${INITIAL_INVERSE_TEMP}_noise${INITIAL_RANDOM_NOISING}_${TIMESTAMP}"
 
 echo "========================================"
 echo "Hyperparameters for this run:"
+echo "  end_exploration_epoch: $END_EXPLORATION_EPOCH"
 echo "  initial_inverse_temp: $INITIAL_INVERSE_TEMP"
 echo "  initial_random_noising: $INITIAL_RANDOM_NOISING"
-echo "  end_exploration_step: $END_EXPLORATION_STEP"
 echo "  run_name: $RUN_NAME"
 echo "========================================"
 
@@ -64,8 +64,8 @@ python finetune_reward_bp.py \
     --name "$RUN_NAME" \
     --initial_inverse_temp $INITIAL_INVERSE_TEMP \
     --initial_random_noising $INITIAL_RANDOM_NOISING \
-    --end_exploration_step $END_EXPLORATION_STEP \
-    --end_exploration_epoch 500
+    --end_exploration_step 10 \
+    --end_exploration_epoch $END_EXPLORATION_EPOCH
 
 EXIT_CODE=$?
 
@@ -73,11 +73,11 @@ echo "========================================"
 if [ $EXIT_CODE -eq 0 ]; then
     echo "SUCCESS: Run completed successfully!"
     echo "Run name: $RUN_NAME"
-    echo "Parameters: temp=$INITIAL_INVERSE_TEMP, noise=$INITIAL_RANDOM_NOISING, step=$END_EXPLORATION_STEP"
+    echo "Parameters: epoch=$END_EXPLORATION_EPOCH, temp=$INITIAL_INVERSE_TEMP, noise=$INITIAL_RANDOM_NOISING"
 else
     echo "ERROR: Run failed with exit code $EXIT_CODE"
     echo "Run name: $RUN_NAME"
-    echo "Parameters: temp=$INITIAL_INVERSE_TEMP, noise=$INITIAL_RANDOM_NOISING, step=$END_EXPLORATION_STEP"
+    echo "Parameters: epoch=$END_EXPLORATION_EPOCH, temp=$INITIAL_INVERSE_TEMP, noise=$INITIAL_RANDOM_NOISING"
 fi
 echo "========================================"
 
