@@ -29,10 +29,6 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 WANDB_NAME="dna_conductor_${TIMESTAMP}_epochs=500"
 echo "WandB Run Name: $WANDB_NAME"
 
-# Base paths
-BASE_PATH="/n/holylabs/LABS/sitanc_lab/Users/mfli/DRAKES_test/data_and_model"
-RESULTS_DIR="$BASE_PATH/mdlm/reward_bp_results_final"
-
 echo "========================================"
 echo "STEP 1: Running Finetuning"
 echo "========================================"

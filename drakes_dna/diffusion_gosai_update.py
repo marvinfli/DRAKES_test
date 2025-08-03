@@ -475,21 +475,9 @@ class Diffusion(L.LightningModule):
     move_chance_s = move_chance_s[:, None, None]
     unet_conditioning = sigma_t
     log_p_x0 = self.forward(x, unet_conditioning)
-    if inverse_temp:
-      log_p_x0 *= inverse_temp
-      if multiply_noise:
-        q_xs = log_p_x0.exp()/log_p_x0.exp().sum() * (move_chance_t - move_chance_s) * multiply_noise
-      else:
-        q_xs = log_p_x0.exp()/log_p_x0.exp().sum() * (move_chance_t - move_chance_s) 
-    else:
-      q_xs = log_p_x0.exp() * (move_chance_t - move_chance_s) 
     assert move_chance_t.ndim == log_p_x0.ndim
     
-    if multiply_noise:
-      q_xs[:,:,self.mask_index]  = 1-multiply_noise*(1-move_chance_s[:, :, 0])  
-    else:
-      q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
-    
+    q_xs = self._compute_q_xs(log_p_x0, move_chance_t, move_chance_s, inverse_temp=inverse_temp, multiply_noise=multiply_noise) 
     _x = _sample_categorical(q_xs)
     copy_flag = (x != self.mask_index).to(x.dtype)
 
@@ -571,7 +559,22 @@ class Diffusion(L.LightningModule):
         logits = self.forward(x, unet_conditioning)
         x = logits[:, :, :-1].argmax(dim=-1)
     return x
-  
+
+  def _exp_then_normalize(self, x):
+    return torch.nn.functional.normalize(x.exp(), p=1.0, dim=-1)
+
+  def _compute_q_xs(self, log_p_x0, move_chance_t, move_chance_s, 
+                        inverse_temp=None,multiply_noise=None):
+    if inverse_temp:
+      log_p_x0 *= inverse_temp
+    q_xs = self._exp_then_normalize(log_p_x0) * (move_chance_t - move_chance_s)
+    
+    if multiply_noise:
+      q_xs[:,:,:self.mask_index] *= multiply_noise  
+    q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
+    
+    return q_xs 
+
   def _ddpm_update_finetune_gradient(self, x, t, dt, copy_flag_temp, return_process=False,inverse_temp=None, multiply_noise=None):
     # Hello
     # print("==== Iteration ====")
@@ -599,21 +602,7 @@ class Diffusion(L.LightningModule):
     move_chance_s = move_chance_s[:, None, None]
     unet_conditioning = sigma_t
     log_p_x0 = self.forward(x, unet_conditioning)
-    if inverse_temp:
-      log_p_x0 *= inverse_temp
-      if multiply_noise:
-        q_xs = log_p_x0.exp()/log_p_x0.exp().sum() * (move_chance_t - move_chance_s) * multiply_noise
-      else:
-        q_xs = log_p_x0.exp()/log_p_x0.exp().sum() * (move_chance_t - move_chance_s) 
-    else:
-      q_xs = log_p_x0.exp() * (move_chance_t - move_chance_s) 
-
-    assert move_chance_t.ndim == log_p_x0.ndim
-    
-    if multiply_noise:
-      q_xs[:,:,self.mask_index]  = 1-multiply_noise*(1-move_chance_s[:, :, 0])  
-    else:
-      q_xs[:, :, self.mask_index] = move_chance_s[:, :, 0]
+    q_xs = self._compute_q_xs(log_p_x0, move_chance_t, move_chance_s, inverse_temp=inverse_temp, multiply_noise=multiply_noise) 
            
     # print("log_p_x0 shape", log_p_x0.shape)
     # print("q_xs shape", q_xs.shape)

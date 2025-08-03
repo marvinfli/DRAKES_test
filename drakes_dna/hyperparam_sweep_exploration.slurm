@@ -62,9 +62,9 @@ echo "========================================"
 # Run finetuning with the selected hyperparameters
 python finetune_reward_bp.py \
     --name "$RUN_NAME" \
-    --initial_inverse_temp "$INITIAL_INVERSE_TEMP" \
-    --initial_random_noising "$INITIAL_RANDOM_NOISING" \
-    --end_exploration_step "$END_EXPLORATION_STEP" \
+    --initial_inverse_temp $INITIAL_INVERSE_TEMP \
+    --initial_random_noising $INITIAL_RANDOM_NOISING \
+    --end_exploration_step $END_EXPLORATION_STEP \
     --end_exploration_epoch 500
 
 EXIT_CODE=$?

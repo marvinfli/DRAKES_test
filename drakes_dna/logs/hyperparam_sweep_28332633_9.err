@@ -1,0 +1,50 @@
+/n/home03/mfli/.conda/envs/sedd/lib/python3.9/site-packages/norns/cfg.py:9: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+/n/holylabs/sitanc_lab/Users/mfli/soc-curriculum/DRAKES/drakes_dna/finetune_reward_bp.py:198: UserWarning: 
+The version_base parameter is not specified.
+Please specify a compatability version level, or None.
+Will assume defaults for version 1.1
+  initialize(config_path="configs_gosai", job_name="load_model")
+wandb: Currently logged in as: marvinli (marvinli-harvard-university) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.21.0
+wandb: Run data is saved locally in /n/holylabs/LABS/sitanc_lab/Users/mfli/soc-curriculum/DRAKES/data_and_model/mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_sweep_temp0.1_noise0.1_step20_20250802_200024_20250802_200052/wandb/run-20250802_200052-e3s024u1
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_sweep_temp0.1_noise0.1_step20_20250802_200024_20250802_200052
+wandb: ⭐️ View project at https://wandb.ai/marvinli-harvard-university/reward_bp_final
+wandb: 🚀 View run at https://wandb.ai/marvinli-harvard-university/reward_bp_final/runs/e3s024u1
+wandb: WARNING Calling wandb.login() after wandb.init() has no effect.
+wandb: Downloading large artifact human_state_dict:latest, 939.29MB. 1 files... 
+wandb:   1 of 1 files downloaded.  
+Done. 0:0:18.1 (51.9MB/s)
+wandb: WARNING Calling wandb.login() after wandb.init() has no effect.
+wandb: Downloading large artifact human_state_dict:latest, 939.29MB. 1 files... 
+wandb:   1 of 1 files downloaded.  
+Done. 0:0:0.7 (1359.8MB/s)
+wandb:                                                                                
+wandb: 
+wandb: Run history:
+wandb:            epoch ▁▁▁▁▁▂▂▂▂▂▂▃▃▃▃▃▄▄▄▄▅▅▅▅▅▆▆▆▆▆▆▆▆▆▇▇▇███
+wandb:     inverse_temp ▁▂▂▂▃▃▃▃▃▃▄▄▄▄▄▅▅▅▅▅▇▇▇▇████████████████
+wandb:     mean kl loss ▁▁▅▅▆▆▆▆▆▆▅▆▆▅▆▆▆▆▆▆▆▆▆▆▇▇▇█▆▇▇▇▇▇▇▇▇█▇█
+wandb: mean reward loss ▇▇██▆▅▆▆▆▅▄▅▅▃▄▄▄▃▅▄▄▅▄▄▃▄▃▂▃▃▃▂▂▂▁▁▂▂▂▁
+wandb:   mean_grad_norm ▁▂▂█▂▄▃▅▃▂▃▂▁▂▃▂▅▆▃▅▄▅▅▆▄▅▃▆▅▁▃▇▃▄▃▃▄▃▄▃
+wandb:        mean_loss █▇▇▆▄▃▃▃▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▁▁▁▁▁▁▁▁
+wandb:      mean_reward ▁▄▅▆▆▆▆▆▆▇▇▇▆▆▇▇▇▇▇▇▇▇▆▇▇▇▇▇█▇█▇█▇██████
+wandb: mean_reward_eval ▂▂▁▂▁▄▂▃▃▂▂▂▃▆▅▅▃▅▄▅▅▅▅▅▅▄▄▅▅▆▇▇▅▇▆▇▇▇█▇
+wandb:   multiply_noise ▂▂▂▃▃▄▄▅▅▅▆▆▆▆▇▇▇██▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
+wandb: 
+wandb: Run summary:
+wandb:            epoch 999
+wandb:     inverse_temp 1
+wandb:     mean kl loss 384.26282
+wandb: mean reward loss -6.64843
+wandb:   mean_grad_norm 8.46228
+wandb:        mean_loss -6.26417
+wandb:      mean_reward 6.64843
+wandb: mean_reward_eval 6.20954
+wandb:   multiply_noise 0
+wandb: 
+wandb: 🚀 View run alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_sweep_temp0.1_noise0.1_step20_20250802_200024_20250802_200052 at: https://wandb.ai/marvinli-harvard-university/reward_bp_final/runs/e3s024u1
+wandb: ⭐️ View project at: https://wandb.ai/marvinli-harvard-university/reward_bp_final
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: /n/holylabs/LABS/sitanc_lab/Users/mfli/soc-curriculum/DRAKES/data_and_model/mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_sweep_temp0.1_noise0.1_step20_20250802_200024_20250802_200052/wandb/run-20250802_200052-e3s024u1/logs

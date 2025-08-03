@@ -144,14 +144,14 @@ def fine_tune(new_model,  new_model_y, new_model_y_eval, old_model, args, eps=1e
         print(f"Epoch {epoch_num} Mean reward {np.mean(rewards):.6f} Mean reward eval {np.mean(rewards_eval):.6f} "
               f"Mean grad norm {tot_grad_norm:.6f} Mean loss {np.mean(losses):.6f} "
               f"Mean reward loss {np.mean(reward_losses):.6f} Mean kl loss {np.mean(kl_losses):.6f} "
-              f"Inverse temp {inverse_temp:.6f} Multiply noise {multiply_noise:.6f}")
+              f"Inverse temp {inverse_temp:.6f} Multiply noise {multiply_noise:.6f}" if inverse_temp is not None and multiply_noise is not None else "Inverse temp or Multiply noise is None")
         
         if args.name != 'debug':
             wandb.log({"epoch": epoch_num, "mean_reward": np.mean(rewards), "mean_reward_eval": np.mean(rewards_eval), 
             "mean_grad_norm": tot_grad_norm, "mean_loss": np.mean(losses), "mean reward loss": np.mean(reward_losses), 
             "mean kl loss": np.mean(kl_losses), "inverse_temp" : inverse_temp, "multiply_noise" : multiply_noise})
         with open(log_path, 'a') as f:
-            f.write(f"Epoch {epoch_num} Mean reward {np.mean(rewards)} Mean reward eval {np.mean(rewards_eval)} Mean grad norm {tot_grad_norm} Mean loss {np.mean(losses)} Mean reward loss {np.mean(reward_losses)} Mean kl loss {np.mean(kl_losses)} Inverse temp {inverse_temp:.6f} Multiply noise {multiply_noise:.6f}\n")
+            f.write(f"Epoch {epoch_num} Mean reward {np.mean(rewards)} Mean reward eval {np.mean(rewards_eval)} Mean grad norm {tot_grad_norm} Mean loss {np.mean(losses)} Mean reward loss {np.mean(reward_losses)} Mean kl loss {np.mean(kl_losses)} Inverse temp {inverse_temp} Multiply noise {multiply_noise}\n")
         
         if (epoch_num+1) % args.save_every_n_epochs == 0:
             model_path = os.path.join(save_path, f'model_{epoch_num}.ckpt')
