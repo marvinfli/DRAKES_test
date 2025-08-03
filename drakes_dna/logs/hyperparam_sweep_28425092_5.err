@@ -16,3 +16,7 @@ wandb: WARNING Calling wandb.login() after wandb.init() has no effect.
 wandb: Downloading large artifact human_state_dict:latest, 939.29MB. 1 files... 
 wandb:   1 of 1 files downloaded.  
 Done. 0:0:0.6 (1565.3MB/s)
+wandb: WARNING Calling wandb.login() after wandb.init() has no effect.
+wandb: Downloading large artifact human_state_dict:latest, 939.29MB. 1 files... 
+wandb:   1 of 1 files downloaded.  
+Done. 0:0:0.6 (1589.9MB/s)

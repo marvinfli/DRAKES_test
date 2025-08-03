@@ -14,3 +14,9 @@ wandb: ⭐️ View project at https://wandb.ai/marvinli-harvard-university/rewar
 wandb: 🚀 View run at https://wandb.ai/marvinli-harvard-university/reward_bp_final/runs/wz8m6wgr
 wandb: WARNING Calling wandb.login() after wandb.init() has no effect.
 wandb: Downloading large artifact human_state_dict:latest, 939.29MB. 1 files... 
+wandb:   1 of 1 files downloaded.  
+Done. 0:0:0.6 (1487.9MB/s)
+wandb: WARNING Calling wandb.login() after wandb.init() has no effect.
+wandb: Downloading large artifact human_state_dict:latest, 939.29MB. 1 files... 
+wandb:   1 of 1 files downloaded.  
+Done. 0:0:0.6 (1472.0MB/s)
