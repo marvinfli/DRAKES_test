@@ -27,9 +27,9 @@ conda activate sedd
 export CUDA_VISIBLE_DEVICES=0
 
 # Define hyperparameter grids
-INITIAL_INVERSE_TEMP_VALUES=(0.05 0.1 0.5)
+INITIAL_INVERSE_TEMP_VALUES=(0.01 0.5 0.5)
 INITIAL_RANDOM_NOISING_VALUES=(0.1 0.5 0.7)
-END_EXPLORATION_STEP_VALUES=(20 50 100)
+END_EXPLORATION_STEP_VALUES=(5 10 20)
 
 # Calculate which combination this array task should run
 # 3x3x3 = 27 combinations total (indices 0-26)
