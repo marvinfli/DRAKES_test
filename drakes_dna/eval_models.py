@@ -125,6 +125,17 @@ class ModelEvaluator:
             models['finetuned'] = model
             self.logger.info(f"Loaded finetuned model from {ckpt_path}")
         
+        # Load multiple finetuned models
+        if 'finetuned_models' in self.config['models']:
+            for model_name, model_path in self.config['models']['finetuned_models'].items():
+                ckpt_path = os.path.join(base_path, model_path)
+                cfg.eval.checkpoint_path = ckpt_path
+                model = diffusion_gosai_update.Diffusion(cfg, eval=False).cuda()
+                model.load_state_dict(torch.load(cfg.eval.checkpoint_path))
+                model.eval()
+                models[model_name] = model
+                self.logger.info(f"Loaded finetuned model '{model_name}' from {ckpt_path}")
+        
         # Load pretrained model
         if 'pretrained_model' in self.config['models']:
             old_path = os.path.join(base_path, self.config['models']['pretrained_model'])

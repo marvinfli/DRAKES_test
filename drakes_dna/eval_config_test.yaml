@@ -5,13 +5,14 @@ base_path: '/n/holylabs/LABS/sitanc_lab/Users/mfli/soc-curriculum/DRAKES/data_an
 
 # Model paths (relative to base_path)
 models:
-  finetuned_model: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_dna_conductor_20250731_201840_20250731_201927/model_999.ckpt"
+  finetuned_models:
+    main_finetuned: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_dna_conductor_20250731_201840_20250731_201927/model_999.ckpt"
   pretrained_model: 'mdlm/outputs_gosai/pretrained.ckpt'
   zero_alpha_model: 'mdlm/reward_bp_results_final/zero_alpha.ckpt'
   cfg_model: 'mdlm/outputs_gosai/cfg.ckpt'
 
 # Sampling parameters
-num_sample_batches: 10
+num_sample_batches: 20
 num_samples_per_batch: 64
 
 # CFG parameters
