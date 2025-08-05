@@ -8,6 +8,9 @@
 #SBATCH --array=0-2
 #SBATCH --output=logs/baseline_%A_%a.out
 #SBATCH --error=logs/baseline_%A_%a.err
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=marvinli@college.harvard.edu
+
 
 echo "========================================"
 echo "DRAKES DNA Baseline Finetuning + Evaluation Pipeline"

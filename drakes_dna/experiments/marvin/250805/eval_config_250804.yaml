@@ -1,0 +1,77 @@
+# DRAKES DNA Model Evaluation Configuration
+
+# Base path to your models
+base_path: '/n/holylabs/LABS/sitanc_lab/Users/mfli/soc-curriculum/DRAKES/data_and_model'
+
+# Model paths (relative to base_path)
+models:
+  finetuned_models:
+    # Recent models from last 24 hours - Step 5 experiments
+    epoch=250.exploration=5.seed=42: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step5_epoch250_seed42_20250804_152118_20250804_152129/model_999.ckpt"
+    epoch=250.exploration=5.seed=123: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step5_epoch250_seed123_20250804_152737_20250804_152749/model_999.ckpt"
+    epoch=250.exploration=5.seed=456: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step5_epoch250_seed456_20250804_152741_20250804_152750/model_999.ckpt"
+    
+    epoch=500.exploration=5.seed=42: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step5_epoch500_seed42_20250804_152847_20250804_152915/model_999.ckpt"
+    epoch=500.exploration=5.seed=123: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step5_epoch500_seed123_20250804_152847_20250804_152915/model_999.ckpt"
+    epoch=500.exploration=5.seed=456: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step5_epoch500_seed456_20250804_153111_20250804_153122/model_999.ckpt"
+    
+    epoch=950.exploration=5.seed=42: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step5_epoch950_seed42_20250804_153111_20250804_153123/model_999.ckpt"
+    epoch=950.exploration=5.seed=123: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step5_epoch950_seed123_20250804_153251_20250804_153302/model_999.ckpt"
+    epoch=950.exploration=5.seed=456: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step5_epoch950_seed456_20250804_153314_20250804_153342/model_999.ckpt"
+    
+    # Recent models from last 24 hours - Step 10 experiments
+    epoch=250.exploration=10.seed=42: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step10_epoch250_seed42_20250804_153314_20250804_153341/model_999.ckpt"
+    epoch=250.exploration=10.seed=123: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step10_epoch250_seed123_20250804_153314_20250804_153343/model_999.ckpt"
+    epoch=250.exploration=10.seed=456: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step10_epoch250_seed456_20250804_153314_20250804_153344/model_999.ckpt"
+    
+    epoch=500.exploration=10.seed=42: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step10_epoch500_seed42_20250804_153314_20250804_153323/model_999.ckpt"
+    epoch=500.exploration=10.seed=123: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step10_epoch500_seed123_20250804_153326_20250804_153336/model_999.ckpt"
+    epoch=500.exploration=10.seed=456: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step10_epoch500_seed456_20250804_153452_20250804_153508/model_999.ckpt"
+    
+    epoch=950.exploration=10.seed=42: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step10_epoch950_seed42_20250804_153452_20250804_153507/model_999.ckpt"
+    epoch=950.exploration=10.seed=123: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step10_epoch950_seed123_20250804_153452_20250804_153506/model_999.ckpt"
+    epoch=950.exploration=10.seed=456: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step10_epoch950_seed456_20250804_153452_20250804_153509/model_999.ckpt"
+    
+    # Recent models from last 24 hours - Step 15 experiments
+    epoch=250.exploration=15.seed=42: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step15_epoch250_seed42_20250804_153458_20250804_153513/model_999.ckpt"
+    epoch=250.exploration=15.seed=123: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step15_epoch250_seed123_20250804_153458_20250804_153514/model_999.ckpt"
+    epoch=250.exploration=15.seed=456: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step15_epoch250_seed456_20250804_153458_20250804_153512/model_999.ckpt"
+    
+    epoch=500.exploration=15.seed=42: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step15_epoch500_seed42_20250804_153458_20250804_153511/model_999.ckpt"
+    epoch=500.exploration=15.seed=123: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step15_epoch500_seed123_20250804_153500_20250804_153519/model_999.ckpt"
+    epoch=500.exploration=15.seed=456: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step15_epoch500_seed456_20250804_153500_20250804_153517/model_999.ckpt"
+    
+    epoch=950.exploration=15.seed=42: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step15_epoch950_seed42_20250804_153500_20250804_153518/model_999.ckpt"
+    epoch=950.exploration=15.seed=123: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step15_epoch950_seed123_20250804_153500_20250804_153516/model_999.ckpt"
+    epoch=950.exploration=15.seed=456: "mdlm/reward_bp_results_final/alpha0.001_accum4_bsz32_truncate50_temp1.0_clip1.0_step15_epoch950_seed456_20250804_153510_20250804_153543/model_999.ckpt"
+
+  pretrained_model: 'mdlm/outputs_gosai/pretrained.ckpt'
+  zero_alpha_model: 'mdlm/reward_bp_results_final/zero_alpha.ckpt'
+  cfg_model: 'mdlm/outputs_gosai/cfg.ckpt'
+
+# Sampling parameters
+num_sample_batches: 10
+num_samples_per_batch: 64
+
+# CFG parameters
+cfg_weight: 10
+cfg_prob: 0.1
+
+# TDS parameters  
+tds_alpha: 0.5
+tds_guidance_scale: 1000
+
+# CG parameters
+cg_guidance_scale: 300000
+
+# SMC parameters
+smc_alpha: 0.5
+
+# Likelihood calculation parameters
+likelihood_steps: 128
+
+# Random seed
+seed: 0
+
+# CUDA device
+cuda_device: '0' 
